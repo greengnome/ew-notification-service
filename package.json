@@ -1,0 +1,24 @@
+{
+    "name": "@equitywallet/notification-service",
+    "main": "index.js",
+    "version": "0.0.1",
+    "type": "module",
+    "description": "Notification service for Equity Wallet",
+    "dependencies": {
+        "express": "^4.18.2",
+        "express-async-errors": "^3.1.1",
+        "loglevel": "^1.8.1"
+    },
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node --watch index.js",
+        "lint": "eslint . --ext .js",
+        "lint:fix": "eslint . --ext .js --fix",
+        "eslint:init": "eslint --init"
+      },
+    "devDependencies": {
+        "eslint": "^8.46.0",
+        "eslint-config-prettier": "^9.0.0",
+        "prettier": "^3.0.1"
+    }
+}
