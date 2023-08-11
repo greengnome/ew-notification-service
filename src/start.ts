@@ -1,45 +1,43 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 import logger from 'loglevel';
-import http from 'http';
+import http, { IncomingMessage, ServerResponse } from 'http';
 import { Server } from 'socket.io';
 
-import { getRoutes } from './routes/index.js';
+import { getRoutes } from './routes';
 
-function startServer({ port = process.env.PORT } = {}) {
+function startServer({ port = process.env.PORT } = {})  {
     const app = express();
     const httpServer = http.createServer(app);
     const io = new Server(httpServer);
 
+    // we'll consider the socket to be part of the request
     app.set('socketio', io);
 
+    // this is our "api", it just responds with the data we send to it
     app.use('/api', getRoutes());
+
     app.use(errorMiddleware);
 
     io.on('connection', (socket) => {
-        console.log('a user connected');
+        logger.info('a user connected');
 
         socket.on('disconnect', () => {
-            console.log('user disconnected');
+            logger.info('user disconnected');
         });
     });
 
     return new Promise((resolve) => {
         const server = httpServer.listen(port, () => {
-            logger.info(`Listening on port ${server.address().port}`);
-            const originalClose = server.close.bind(server);
-            server.close = () => {
-                return new Promise((resolveClose) => {
-                    originalClose(resolveClose);
-                });
-            };
-            setupCloseOnExit(server);
-            resolve(server);
+            logger.info(`Listening on port ${port}`);
         });
+
+        setupCloseOnExit(server);
+        resolve(server);
     });
 }
 
-function errorMiddleware(error, req, res, next) {
+function errorMiddleware(error: Error, req: Request, res: Response, next: NextFunction) {
     if (res.headersSent) {
         next(error);
     } else {
@@ -55,17 +53,17 @@ function errorMiddleware(error, req, res, next) {
     }
 }
 
-function setupCloseOnExit(server) {
-    async function exitHandler(options = {}) {
-        await server
-            .close()
-            .then(() => {
-                logger.info('Server successfully closed');
-            })
-            .catch((e) => {
-                logger.warn('Something went wrong closing the server', e.stack);
-            });
-        if (options.exit) process.exit();
+function setupCloseOnExit(server: http.Server) {
+    function exitHandler(options = {exit: false}) {
+        server.close((err) => {
+            if (err) {
+                logger.error(err);
+            }
+
+            logger.info('Server closed');
+
+            if (options.exit) process.exit();
+        });
     }
 
     process.on('exit', exitHandler);

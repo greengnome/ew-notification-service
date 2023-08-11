@@ -1,6 +1,6 @@
 import express from 'express';
-import { getRootRoutes } from './root.js';
-import { getUpdateRoutes } from './update.js';
+import { getRootRoutes } from './root';
+import { getUpdateRoutes } from './update';
 
 function getRoutes() {
     const router = express.Router();

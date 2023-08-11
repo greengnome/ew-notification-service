@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "checkJs": true,
+    "rootDir": "./",
+    "outDir": "dist",
+    "noImplicitAny": true,
+    "resolveJsonModule": true
+  },  
+  "compileOnSave": true,
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
