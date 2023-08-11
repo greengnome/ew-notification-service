@@ -1,18 +1,31 @@
 import express from 'express';
 import 'express-async-errors';
 import logger from 'loglevel';
+import http from 'http';
+import { Server } from 'socket.io';
 
 import { getRoutes } from './routes/index.js';
 
 function startServer({ port = process.env.PORT } = {}) {
     const app = express();
+    const httpServer = http.createServer(app);
+    const io = new Server(httpServer);
+
+    app.set('socketio', io);
 
     app.use('/api', getRoutes());
-
     app.use(errorMiddleware);
 
+    io.on('connection', (socket) => {
+        console.log('a user connected');
+
+        socket.on('disconnect', () => {
+            console.log('user disconnected');
+        });
+    });
+
     return new Promise((resolve) => {
-        const server = app.listen(port, () => {
+        const server = httpServer.listen(port, () => {
             logger.info(`Listening on port ${server.address().port}`);
             const originalClose = server.close.bind(server);
             server.close = () => {
