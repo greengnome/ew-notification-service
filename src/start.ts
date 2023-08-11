@@ -1,12 +1,12 @@
 import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 import logger from 'loglevel';
-import http, { IncomingMessage, ServerResponse } from 'http';
+import http from 'http';
 import { Server } from 'socket.io';
 
 import { getRoutes } from './routes';
 
-function startServer({ port = process.env.PORT } = {})  {
+function startServer({ port = process.env.PORT } = {}) {
     const app = express();
     const httpServer = http.createServer(app);
     const io = new Server(httpServer);
@@ -37,7 +37,12 @@ function startServer({ port = process.env.PORT } = {})  {
     });
 }
 
-function errorMiddleware(error: Error, req: Request, res: Response, next: NextFunction) {
+function errorMiddleware(
+    error: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     if (res.headersSent) {
         next(error);
     } else {
@@ -54,7 +59,7 @@ function errorMiddleware(error: Error, req: Request, res: Response, next: NextFu
 }
 
 function setupCloseOnExit(server: http.Server) {
-    function exitHandler(options = {exit: false}) {
+    function exitHandler(options = { exit: false }) {
         server.close((err) => {
             if (err) {
                 logger.error(err);
