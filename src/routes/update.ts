@@ -1,20 +1,23 @@
 import express, { Request, Response } from 'express';
 import logger from 'loglevel';
 import { getSocketFromRequest } from '../utils/socket';
+import { getKeyByValue } from '../store';
 
 function getUpdateRoutes() {
     const router = express.Router();
-    router.get('/ballance', notifyBallanceUpdated);
+    router.get('/balance', notifyBallanceUpdated);
     return router;
 }
 
 async function notifyBallanceUpdated(req: Request, res: Response) {
-    logger.info('updtae ballance');
-    // equity wallet main server call this api to notify ballance updated syncronously (no need to wait for response)
-    // then this api will notify all connected clients via socket.io
+    const { wallet, balance } = req.query;
     const socket = getSocketFromRequest(req);
-    socket.emit('ballanceUpdated', { ballance: 100500 });
-    res.send('api update ballance');
+    const userSocket = getKeyByValue(wallet as string);
+
+    logger.info(`User ${userSocket} balance updated`);
+
+    socket.to(userSocket).emit('balance-updated', { balance });
+    res.send('user notified: ballance updated');
 }
 
 export { getUpdateRoutes };

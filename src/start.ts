@@ -2,14 +2,18 @@ import express, { NextFunction, Request, Response } from 'express';
 import 'express-async-errors';
 import logger from 'loglevel';
 import http from 'http';
+import cors from 'cors';
 import { Server } from 'socket.io';
 
 import { getRoutes } from './routes';
+import { socketIdToWalletMap } from './store';
 
 function startServer({ port = process.env.PORT } = {}) {
     const app = express();
     const httpServer = http.createServer(app);
     const io = new Server(httpServer);
+
+    app.use(cors());
 
     // we'll consider the socket to be part of the request
     app.set('socketio', io);
@@ -20,10 +24,15 @@ function startServer({ port = process.env.PORT } = {}) {
     app.use(errorMiddleware);
 
     io.on('connection', (socket) => {
-        logger.info('a user connected');
+        logger.info(`User ${socket.id} connected`);
+        const wallet = socket.handshake.query.wallet as string;
+        socketIdToWalletMap.set(socket.id, wallet);
+
+        logger.info(`User ${socket.id} connected with wallet ${wallet}`);
 
         socket.on('disconnect', () => {
-            logger.info('user disconnected');
+            logger.info(`User ${socket.id} connected`);
+            socketIdToWalletMap.delete(socket.id);
         });
     });
 
