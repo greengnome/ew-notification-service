@@ -18,6 +18,11 @@ function startServer({ port = process.env.PORT } = {}) {
     // we'll consider the socket to be part of the request
     app.set('socketio', io);
 
+    app.use(express.json());
+    app.use('/', (req, res) => {
+        res.send('Hello World!');
+    });
+
     // this is our "api", it just responds with the data we send to it
     app.use('/api', getRoutes());
 
