@@ -7,4 +7,4 @@ const logLevel: LogLevelDesc =
 
 logger.setLevel(logLevel);
 
-startServer({ port: '9899' });
+startServer();

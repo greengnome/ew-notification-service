@@ -8,7 +8,7 @@ import { Server } from 'socket.io';
 import { getRoutes } from './routes';
 import { socketIdToWalletMap } from './store';
 
-function startServer({ port = process.env.PORT } = {}) {
+function startServer() {
     const app = express();
     const httpServer = http.createServer(app);
     const io = new Server(httpServer);
@@ -42,8 +42,10 @@ function startServer({ port = process.env.PORT } = {}) {
     });
 
     return new Promise((resolve) => {
-        const server = httpServer.listen(port, () => {
-            logger.info(`Listening on port ${port}`);
+        const PORT = process.env.PORT || 3000;
+        logger.info(`Starting server on port ${PORT}`);
+        const server = httpServer.listen(PORT, () => {
+            logger.info(`Listening on port ${PORT}`);
         });
 
         setupCloseOnExit(server);
